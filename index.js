@@ -1,6 +1,6 @@
 var needle   = require('needle')
   , request  = require('request')
-  , strings  = [' skit ', ' skits ']
+  , strings  = ['synonym', 'synonyms']
   , youngest = Date.now()
   , argv     = require('yargs').argv
   , modhash
@@ -15,7 +15,6 @@ exports.postComment = postComment;
 exports.fetch       = fetchComments;
 exports.checkUser   = checkUser;
 
-request.defaults({jar:true});
 exports.login();
 setInterval(exports.fetch, 2000);
 
@@ -31,11 +30,11 @@ function targetsContain (targets) {
 }
 
 function postComment (parentId) {
-  var text     = 'I think you mean [sketch](http://en.wikipedia.org/wiki/Sketch_comedy).'
+  var text     = 'They are, in fact, synonyms.'
     , options  = {
         url      : 'https://en.reddit.com/api/comment?api_type=json&text=' + encodeURIComponent(text) + '&thing_id=' + parentId,
         headers  : {
-            'User-Agent' : 'skitBot/0.1 by SketchNotSkit',
+            'User-Agent' : 'synonymBot/0.1 by SynonymChecker',
             'X-Modhash'  : modhash,
             'Cookie' : 'reddit_session=' + encodeURIComponent(cookie)
           },
@@ -58,7 +57,7 @@ function checkUser () {
   var options = {
         url      : 'https://en.reddit.com/api/me.json',
         headers  : {
-            'User-Agent' : 'skitBot/0.1 by SketchNotSkit',
+            'User-Agent' : 'synonymBot/0.1 by SynonymChecker',
             'X-Modhash'  : modhash,
             'Cookie' : 'reddit_session=' + encodeURIComponent(cookie)
           },
@@ -88,7 +87,7 @@ function login () {
   var options = {
       url     : 'https://ssl.reddit.com/api/login?api_type=json&user=' + argv.user + '&passwd=' + argv.pass + '&rem=True',
       headers : {
-        'User-Agent' : 'skitBot/0.1 by SketchNotSkit'
+        'User-Agent' : 'synonymBot/0.1 by SynonymChecker',
       },
       method  : 'POST'
   };
@@ -118,15 +117,19 @@ function fetchComments () {
     exports.result = body;
     youngest       = body.metadata.newest_date;
 
-    for (var i=0; i < body.data.length; i++) {
+    for (var i = 0; i < body.data.length; i++) {
       var targets = [ body.data[i].body.toLowerCase() ]
         , id      = body.data[i].name;
 
-      if(body.data[i].name) {
-        targets.push(body.data[i].name.toLowerCase());
+      if(id) {
+        targets.push(id.toLowerCase());
       }
 
-      if( targetsContain(targets) && exports.found.indexOf(id) === -1) {
+      if (body.data[i].author === 'bot_test_acct'){
+        console.log('I see it!');
+      }
+
+      if( targetsContain(targets) && exports.found.indexOf(id) === -1 /*&& body.data[1].author === 'bot_test_acct'*/) {
         console.log(body.data[i].body);
 
         exports.queue.push(id);
