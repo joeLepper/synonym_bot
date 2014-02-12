@@ -47,7 +47,7 @@ function postComment (parentId) {
       return;
     } else {
       console.log('// ------ //');
-      // console.log(body);
+      console.log(body);
       console.log('// ------ //');
     }
   });
@@ -129,7 +129,7 @@ function fetchComments () {
         console.log('I see it!');
       }
 
-      if( targetsContain(targets) && exports.found.indexOf(id) === -1 /*&& body.data[1].author === 'bot_test_acct'*/) {
+      if( targetsContain(targets) && exports.found.indexOf(id) === -1 && body.data[1].author === 'maquih') {
         console.log(body.data[i].body);
 
         exports.queue.push(id);
